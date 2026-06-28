@@ -88,24 +88,19 @@ if current_shifts:
     slego_shifts = [s for s in current_shifts if s.object == "Slego"]
     conakry_shifts = [s for s in current_shifts if s.object == "Conakry"]
     
+    # Выводим дату один раз красиво сверху
     st.markdown(f"### {visual_date_str}")
     st.markdown("")  
     
-    if slego_shifts:
-        st.markdown("Team 1 - Slego")
-    if conakry_shifts:
-        st.markdown("Team 2 - Conakry")
-        
-    st.markdown("")
-    st.markdown("")  
-    
+    # Стили для текста (20px для имен, крупные жирные для под-объектов)
     name_style = "style='font-size: 20px; font-weight: normal; line-height: 1.4;'"
     team_title_style = "style='font-size: 22px; font-weight: bold; margin-bottom: 8px; display: inline-block;'"
     sub_object_style = "style='font-size: 20px; font-weight: bold; margin-top: 6px; margin-bottom: 2px; display: inline-block;'"
 
+    # Сборка HTML для Slego (Team 1)
     slego_html = ""
     if slego_shifts:
-        slego_html += f"<span {team_title_style}>Team 1</span><br>"
+        slego_html += f"<span {team_title_style}>Team 1 - Slego</span><br>"
         main_slego = [s for s in slego_shifts if not s.sub_object]
         for s in main_slego:
             slego_html += f"<span {name_style}>{s.worker.full_name}</span><br>"
@@ -119,9 +114,10 @@ if current_shifts:
             for s in slego_groups[sub_name]:
                 slego_html += f"<span {name_style}>{s.worker.full_name}</span><br>"
 
+    # Сборка HTML для Conakry (Team 2)
     conakry_html = ""
     if conakry_shifts:
-        conakry_html += f"<span {team_title_style}>Team 2</span><br>"
+        conakry_html += f"<span {team_title_style}>Team 2 - Conakry</span><br>"
         main_conakry = [s for s in conakry_shifts if not s.sub_object]
         for s in main_conakry:
             conakry_html += f"<span {name_style}>{s.worker.full_name}</span><br>"
@@ -135,21 +131,28 @@ if current_shifts:
             for s in conakry_groups[sub_name]:
                 conakry_html += f"<span {name_style}>{s.worker.full_name}</span><br>"
 
-    table_html = f"""
-    <table style="width:100%; border:none; border-collapse:collapse; margin-bottom:20px;">
-        <tr style="border:none;">
-            <td style="width:50%; vertical-align:top; border:none; padding-right:15px;">
-                {slego_html}
-            </td>
-            <td style="width:50%; vertical-align:top; border:none; padding-left:15px;">
-                {conakry_html}
-            </td>
-        </tr>
-    </table>
-    """
+    # ДИНАМИЧЕСКОЕПОСТРОЕНИЕ ТАБЛИЦЫ (Защита от вылезания тегов)
+    table_html = "<table style='width:100%; border:none; border-collapse:collapse; margin-bottom:20px;'><tr style='border:none;'>"
     
+    if slego_shifts and conakry_shifts:
+        # Если есть обе команды — делим экран 50/50
+        table_html += f"""
+            <td style='width:50%; vertical-align:top; border:none; padding-right:15px;'>{slego_html}</td>
+            <td style='width:50%; vertical-align:top; border:none; padding-left:15px;'>{conakry_html}</td>
+        """
+    elif slego_shifts:
+        # Если только Slego — занимаем всю ширину, теги Conakry не создаются
+        table_html += f"<td style='width:100%; vertical-align:top; border:none;'>{slego_html}</td>"
+    elif conakry_shifts:
+        # Если только Conakry — занимаем всю ширину
+        table_html += f"<td style='width:100%; vertical-align:top; border:none;'>{conakry_html}</td>"
+
+    table_html += "</tr></table>"
+    
+    # Выводим готовую чистую таблицу
     st.markdown(table_html, unsafe_allow_html=True)
 
+    # Раздел удаления (оставляем без изменений)
     st.markdown("---")
     st.markdown("##### Remove from planner:")
     for s in current_shifts:
