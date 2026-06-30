@@ -79,8 +79,8 @@ class Schedule(Base):
     worker_id: Mapped[int] = mapped_column(ForeignKey("workers.id", ondelete="CASCADE"), nullable=False)
     object: Mapped[str] = mapped_column(String(50), nullable=False)
     sub_object: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
-    hours: Mapped[float] = mapped_column(Numeric(4, 1), default=8.0, nullable=False)
-    
+    hours: Mapped[float] = mapped_column(Numeric(4, 2), default=8.00, nullable=False)
+
     worker: Mapped["Worker"] = relationship("Worker", back_populates="shifts", lazy="joined")
 
 # ==============================================================================
